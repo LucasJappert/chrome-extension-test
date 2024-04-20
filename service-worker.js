@@ -1,39 +1,7 @@
-// console.log("El archivo background.js se ha cargado correctamente.");
-
-// // background.js
-// chrome.runtime.onInstalled.addListener(() => {
-//     console.log("onInstalled...");
-//     chrome.action.onClicked.addListener((tab) => {
-//         console.log("Tab", tab);
-//         chrome.scripting.executeScript({
-//             target: { tabId: tab.id },
-//             function: getContent,
-//         }).then(results => {
-//             // results is an array of results from each frame in the tab where the script was injected
-//             for (let result of results) {
-//                 chrome.runtime.sendMessage({ content: result.result });
-//             }
-//         });
-//     });
-// });
-
-// function getContent() {
-//     return document.documentElement.innerHTML;
-// }
-
-// function ReadTable() {
-//     console.log(document.documentElement.innerHTML.length);
 
 
 
-//     // console.log(document.getElementById('app').textContent);
-//     const aElements = document.getElementsByTagName('a');
-//     for (let aElement of aElements) {
-//         console.log(aElement.innerHTML);
-//     }
-// }
-
-function ReadTable() {
+function GetTotals() {
     // Obtén todas las tablas en el documento
     let tables = document.getElementsByTagName('table');
 
@@ -43,9 +11,6 @@ function ReadTable() {
         if (table.classList.contains('backlog-tree')) {
             
             const ths_of_thead = Array.from(table.getElementsByTagName('th'));
-            ths_of_thead.forEach((th, index) => {
-                console.log(index, th.innerText);
-            });
 
             const indexOfOrder = ths_of_thead.findIndex(th => th.innerText === 'Order');
             const indexOfID = ths_of_thead.findIndex(th => th.innerText === 'ID');
@@ -63,7 +28,6 @@ function ReadTable() {
             trs.forEach((tr, index) => {
                 const tds = Array.from(tr.getElementsByTagName('td'));
                 if (tds.length < 5) return;
-                // console.log(tds[indexOfOrder].innerText, tds[indexOfID].innerText, tds[indexOfTitle].innerText, tds[indexOfState].innerText, tds[indexOfAssignedTo].innerText, tds[indexOfEffort].innerText, tds[indexOfRealEffort].innerText);
                 if (tds[indexOfEffort].innerText !== '') {
                     totals.effort += parseFloat(tds[indexOfEffort].innerText);
                 }
@@ -72,18 +36,22 @@ function ReadTable() {
                 }
             });
             console.log('Totals:', totals);
-
-            return;
-
+            // alert(`Effort: ${totals.effort}\nReal Effort: ${totals.realEffort}`);
+            return totals;
         }
     }
+}
+
+const PrintTotals = () => {
+    totals = GetTotals();
+    alert(`Effort: ${totals.effort}\nReal Effort: ${totals.realEffort}`);
 }
 
 chrome.action.onClicked.addListener((tab) => {
     if (!tab.url.includes('chrome://')) {
         chrome.scripting.executeScript({
             target: { tabId: tab.id },
-            func: ReadTable
+            func: PrintTotals
         });
     }
 });

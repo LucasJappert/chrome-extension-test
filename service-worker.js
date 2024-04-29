@@ -1,7 +1,7 @@
 
 
 
-function GetTotals() {
+const GetTotals = () => {
     // Obtén todas las tablas en el documento
     let tables = document.getElementsByTagName('table');
 
@@ -40,9 +40,15 @@ function GetTotals() {
             return totals;
         }
     }
+
+    return {
+        effort: 0,
+        realEffort: 0
+    };
 }
 
 const PrintTotals = () => {
+    console.log('PrintTotals');
     totals = GetTotals();
     alert(`Effort: ${totals.effort}\nReal Effort: ${totals.realEffort}`);
 }
@@ -51,7 +57,7 @@ chrome.action.onClicked.addListener((tab) => {
     if (!tab.url.includes('chrome://')) {
         chrome.scripting.executeScript({
             target: { tabId: tab.id },
-            func: PrintTotals
+            func: GetTotals
         });
     }
 });
